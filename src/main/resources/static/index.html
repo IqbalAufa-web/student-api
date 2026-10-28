@@ -114,7 +114,7 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            fetch('http://localhost:8080/login', {
+            fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: username, password: password })
@@ -124,7 +124,6 @@
                     else throw new Error('Invalid credentials');
                 })
                 .then(data => {
-                    // Save the token in the browser!
                     localStorage.setItem('token', data.token);
                     showMainApp();
                 })
@@ -148,12 +147,12 @@
         function loadStudents() {
             const token = localStorage.getItem('token');
 
-            fetch('http://localhost:8080/students', {
-                headers: { 'Authorization': 'Bearer ' + token } // Add the VIP Pass!
+            fetch('/students', { // ✅ FIXED: Removed localhost
+                headers: { 'Authorization': 'Bearer ' + token }
             })
                 .then(response => {
                     if (response.status === 403) {
-                        logout(); // If token is invalid, kick them out
+                        logout();
                         return;
                     }
                     return response.json();
@@ -179,11 +178,11 @@
             const name = document.getElementById('nameInput').value;
             const age = document.getElementById('ageInput').value;
 
-            fetch('http://localhost:8080/students', {
+            fetch('/students', { // ✅ FIXED: Removed ${id}
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token // Add the VIP Pass!
+                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify({ name: name, age: parseInt(age) })
             })
@@ -201,9 +200,9 @@
             const token = localStorage.getItem('token');
 
             if (confirm("Delete this student?")) {
-                fetch(`http://localhost:8080/students/${id}`, {
+                fetch(`/students/${id}`, { // ✅ FIXED: Added back ${id}
                     method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + token } // Add the VIP Pass!
+                    headers: { 'Authorization': 'Bearer ' + token }
                 })
                     .then(response => {
                         if (response.ok) loadStudents();
