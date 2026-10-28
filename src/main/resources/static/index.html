@@ -1,0 +1,216 @@
+\
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Manager Secure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #eee;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #login-section,
+        #main-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Student Manager Secure</h1>
+
+        <!-- LOGIN SECTION -->
+        <div id="login-section">
+            <h3>Please Login</h3>
+            <input type="text" id="username" placeholder="Username (admin)">
+            <input type="password" id="password" placeholder="Password (password)">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- MAIN APP SECTION -->
+        <div id="main-section">
+            <button onclick="logout()" style="background: #dc3545; float: right;">Logout</button>
+            <h3>Add a New Student</h3>
+            <input type="text" id="nameInput" placeholder="Student Name">
+            <input type="number" id="ageInput" placeholder="Student Age">
+            <button onclick="addStudent()">Add Student</button>
+
+            <hr>
+            <h3>Student List</h3>
+            <ul id="studentList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is already logged in when page loads
+        window.onload = function () {
+            const token = localStorage.getItem('token');
+            if (token) {
+                showMainApp();
+            } else {
+                document.getElementById('login-section').style.display = 'block';
+            }
+        };
+
+        // 1. LOGIN FUNCTION
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8080/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            })
+                .then(response => {
+                    if (response.ok) return response.json();
+                    else throw new Error('Invalid credentials');
+                })
+                .then(data => {
+                    // Save the token in the browser!
+                    localStorage.setItem('token', data.token);
+                    showMainApp();
+                })
+                .catch(error => alert(error.message));
+        }
+
+        // 2. SHOW MAIN APP
+        function showMainApp() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('main-section').style.display = 'block';
+            loadStudents();
+        }
+
+        // 3. LOGOUT
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.reload();
+        }
+
+        // 4. GET STUDENTS (WITH TOKEN)
+        function loadStudents() {
+            const token = localStorage.getItem('token');
+
+            fetch('http://localhost:8080/students', {
+                headers: { 'Authorization': 'Bearer ' + token } // Add the VIP Pass!
+            })
+                .then(response => {
+                    if (response.status === 403) {
+                        logout(); // If token is invalid, kick them out
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    const list = document.getElementById('studentList');
+                    list.innerHTML = '';
+                    data.forEach(student => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                        <span><b>${student.name}</b> (Age: ${student.age})</span>
+                        <button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
+                    `;
+                        list.appendChild(li);
+                    });
+                });
+        }
+
+        // 5. ADD STUDENT (WITH TOKEN)
+        function addStudent() {
+            const token = localStorage.getItem('token');
+            const name = document.getElementById('nameInput').value;
+            const age = document.getElementById('ageInput').value;
+
+            fetch('http://localhost:8080/students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token // Add the VIP Pass!
+                },
+                body: JSON.stringify({ name: name, age: parseInt(age) })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('nameInput').value = '';
+                        document.getElementById('ageInput').value = '';
+                        loadStudents();
+                    }
+                });
+        }
+
+        // 6. DELETE STUDENT (WITH TOKEN)
+        function deleteStudent(id) {
+            const token = localStorage.getItem('token');
+
+            if (confirm("Delete this student?")) {
+                fetch(`http://localhost:8080/students/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token } // Add the VIP Pass!
+                })
+                    .then(response => {
+                        if (response.ok) loadStudents();
+                    });
+            }
+        }
+    </script>
+</body>
+
+</html>
