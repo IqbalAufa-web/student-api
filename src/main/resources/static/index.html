@@ -50,6 +50,18 @@
             margin-top: 0;
         }
 
+        .edit-btn {
+            background: #007bff;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 0;
+            margin-right: 5px;
+        }
+
+        .edit-btn:hover {
+            background: #0056b3;
+        }
+
         ul {
             list-style-type: none;
             padding: 0;
@@ -164,9 +176,12 @@
                     data.forEach(student => {
                         const li = document.createElement('li');
                         li.innerHTML = `
-                        <span><b>${student.name}</b> (Age: ${student.age})</span>
-                        <button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
-                    `;
+    <span><b>${student.name}</b> (Age: ${student.age})</span>
+    <div>
+        <button class="edit-btn" onclick="updateStudent(${student.id}, '${student.name}', ${student.age})">Edit</button>
+        <button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
+    </div>
+`;
                         list.appendChild(li);
                     });
                 });
@@ -208,6 +223,38 @@
                         if (response.ok) loadStudents();
                     });
             }
+
+
+        }
+
+        function updateStudent(id, currentName, currentAge) {
+            const token = localStorage.getItem('token');
+
+            const newName = prompt("Enter new name:", currentName);
+            const newAge = prompt("Enter new age:", currentAge);
+
+            if (newName === null || newAge === null) return;
+
+            const updatedStudent = {
+                name: newName,
+                age: parseInt(newAge)
+            };
+
+            fetch(`/students/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(updatedStudent)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        loadStudents();
+                    } else {
+                        alert("Failed to update student.");
+                    }
+                });
         }
     </script>
 </body>
