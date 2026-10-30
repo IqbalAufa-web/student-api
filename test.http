@@ -89,3 +89,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzE3O
   "phoneNumber": "0123456789",
   "address": "123 Main Street"
 }
+###
+GET http://localhost:8080/students/paginated?page=0&size=2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzM2MDA1OCwiZXhwIjoxNzkzMzk2MDU4fQ.MyFeqLdGH2qIFBbP6ESm5aXSeuvdFd8vNv90djK8bUs

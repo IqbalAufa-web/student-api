@@ -65,4 +65,12 @@ public class StudentController {
     public Student addProfile(@PathVariable int id, @RequestBody StudentProfile profile) {
         return profileService.addProfileToStudent(id, profile);
     }
+
+    @GetMapping("/students/paginated")
+    public org.springframework.data.domain.Page<Student> getStudentsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return studentService.getStudentsPaginated(page, size);
+    }
 }

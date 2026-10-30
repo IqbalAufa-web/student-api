@@ -61,5 +61,10 @@ public class StudentService {
     public List<Student> searchStudentsByAge(int age) {
         return studentRepo.findByAge(age);
     }
+        public org.springframework.data.domain.Page<Student> getStudentsPaginated(int pageNo, int pageSize) {
+        // PageRequest asks for a specific page (0-indexed) and size
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageNo, pageSize);
+        return studentRepo.findAll(pageable);
+    }
 
 }

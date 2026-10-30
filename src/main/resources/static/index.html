@@ -107,10 +107,19 @@
             <hr>
             <h3>Student List</h3>
             <ul id="studentList"></ul>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="prevPage()" id="prevBtn">Previous</button>
+                <span id="pageInfo" style="margin: 0 15px; font-weight: bold;">Page 1</span>
+                <button onclick="nextPage()" id="nextBtn">Next</button>
+            </div>
         </div>
     </div>
 
     <script>
+
+        let currentPage = 0;
+        const pageSize = 3; // Let's show 3 students per page so we can test the Next button easily
         // Check if user is already logged in when page loads
         window.onload = function () {
             const token = localStorage.getItem('token');
@@ -159,7 +168,8 @@
         function loadStudents() {
             const token = localStorage.getItem('token');
 
-            fetch('/students', { // ✅ FIXED: Removed localhost
+            // Fetch the specific page
+            fetch(`/students/paginated?page=${currentPage}&size=${pageSize}`, {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
                 .then(response => {
@@ -171,19 +181,29 @@
                 })
                 .then(data => {
                     if (!data) return;
+
                     const list = document.getElementById('studentList');
                     list.innerHTML = '';
-                    data.forEach(student => {
+
+                    // Because it's paginated, the array is inside 'content'
+                    data.content.forEach(student => {
                         const li = document.createElement('li');
                         li.innerHTML = `
-    <span><b>${student.name}</b> (Age: ${student.age})</span>
-    <div>
-        <button class="edit-btn" onclick="updateStudent(${student.id}, '${student.name}', ${student.age})">Edit</button>
-        <button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
-    </div>
-`;
+                        <span><b>${student.name}</b> (Age: ${student.age})</span>
+                        <div>
+                            <button class="edit-btn" onclick="updateStudent(${student.id}, '${student.name}', ${student.age})">Edit</button>
+                            <button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button>
+                        </div>
+                    `;
                         list.appendChild(li);
                     });
+
+                    // Update the Pagination UI
+                    document.getElementById('pageInfo').innerText = `Page ${data.number + 1} of ${data.totalPages}`;
+
+                    // Disable buttons if we are on the first or last page
+                    document.getElementById('prevBtn').disabled = data.first;
+                    document.getElementById('nextBtn').disabled = data.last;
                 });
         }
 
@@ -255,6 +275,17 @@
                         alert("Failed to update student.");
                     }
                 });
+        }
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                loadStudents();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            loadStudents();
         }
     </script>
 </body>
