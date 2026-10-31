@@ -39,11 +39,16 @@ public class JwtFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 username, null, Collections.emptyList());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
+                        System.out.println("✅ TOKEN VALID. User: " + username);
+                    } else {
+                        System.out.println("❌ TOKEN INVALID FOR: " + username);
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Invalid Token: " + e.getMessage());
+                System.out.println("❌ JWT EXCEPTION: " + e.getMessage());
             }
+        } else {
+            System.out.println("❌ NO BEARER TOKEN FOUND IN REQUEST");
         }
 
         // Continue to the next filter/controller

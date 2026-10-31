@@ -13,6 +13,7 @@ public class StudentProfile {
 
     private String phoneNumber;
     private String address;
+    private String imageUrl;
 
     // The One-to-One relationship
     @OneToOne
@@ -23,9 +24,10 @@ public class StudentProfile {
     public StudentProfile() {
     }
 
-    public StudentProfile(String phoneNumber, String address) {
+    public StudentProfile(String phoneNumber, String address, String imageUrl) {
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.imageUrl = imageUrl;
     }
 
     // Getters and Setters
@@ -51,6 +53,14 @@ public class StudentProfile {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Student getStudent() {

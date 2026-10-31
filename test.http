@@ -1,73 +1,4 @@
-### GET all students
-GET http://localhost:8080/students
-
-### POST bad data (Validation Test)
-POST http://localhost:8080/students
-Content-Type: application/json
-
-{
-  "name": "",
-  "age": -5
-}
-
-### Add a new course  <-- THIS SEPARATOR IS MISSING!
-POST http://localhost:8080/courses
-Content-Type: application/json
-
-{
-  "title": "Mathematics"
-}
-
-### Enroll Student 1 in Course 1
-POST http://localhost:8080/students/1/courses/1
-
-### Search for Ali
-GET http://localhost:8080/students/search?name=Ali
-### Search for a course
-GET http://localhost:8080/courses/search?title=Mathematics
-### Search students by age
-GET http://localhost:8080/students/search/age?age=20
-
-### Delete Courses
-DELETE http://localhost:8080/courses/1
-### new coursses
-POST http://localhost:8080/courses
-Content-Type: application/json
-
-{
-  "title": "History"
-}
-
-###
-DELETE http://localhost:8080/courses/2
-
-###
-DELETE http://localhost:8080/students/999
-###
-PUT http://localhost:8080/courses/1
-Content-Type: application/json
-
-{
-  "title": "Advanced Mathematics"
-}
-###
-PUT http://localhost:8080/courses/5
-Content-Type: application/json
-
-{
-  "title": "Advanced Science"
-}
-###
-POST http://localhost:8080/courses
-Content-Type: application/json
-
-{
-  "title": "History"
-}
-###
-GET http://localhost:8080/courses
-
-### Login
+### 1. Login
 POST http://localhost:8080/login
 Content-Type: application/json
 
@@ -76,19 +7,14 @@ Content-Type: application/json
   "password": "password"
 }
 
-### Get students WITH token
-GET http://localhost:8080/students
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzE3OTk5NSwiZXhwIjoxNzkzMjE1OTk1fQ.63zHOZ972mOeROdkqjNrPrLh9hYWpd4pOk8JcaDm81k
+### 2. Upload Image
+POST http://localhost:8080/upload
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzQzMjkxNywiZXhwIjoxNzkzNDY4OTE3fQ.PVlxYQ2bi8i6TQ5zYDccK4IN_Il1qaBO4w8PLg4LBxk
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-###
-POST http://localhost:8080/students/2/profile
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzE3OTc2NiwiZXhwIjoxNzkzMjE1NzY2fQ.rYsGm1UciCsx9Q4hdPtTaQy4s4JhlwHD9I0PaP6pDpo
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
 
-{
-  "phoneNumber": "0123456789",
-  "address": "123 Main Street"
-}
-###
-GET http://localhost:8080/students/paginated?page=0&size=2
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc5MzM2MDA1OCwiZXhwIjoxNzkzMzk2MDU4fQ.MyFeqLdGH2qIFBbP6ESm5aXSeuvdFd8vNv90djK8bUs
+< ./src/main/resources/static/test.jpg
+--WebAppBoundary--
