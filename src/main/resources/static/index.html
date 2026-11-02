@@ -233,27 +233,33 @@
                 headers: { 'Authorization': 'Bearer ' + token },
                 body: formData
             })
-                .then(response => response.text()) // Cloudinary returns the URL as text
+                .then(response => response.text())
                 .then(imageUrl => {
-                    // 2. Now save the student with the image URL
-                    const newStudent = {
-                        name: name,
-                        age: parseInt(age),
-                        profile: {
-                            imageUrl: imageUrl,
-                            phoneNumber: "000",
-                            address: "Address"
-                        }
-                    };
-
+                    // 2. Create the student FIRST (without the profile)
                     return fetch('/students', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer ' + token
                         },
-                        body: JSON.stringify(newStudent)
-                    });
+                        body: JSON.stringify({ name: name, age: parseInt(age) })
+                    })
+                        .then(res => res.json())
+                        .then(newStudent => {
+                            // 3. Now use the new Student ID to add the profile
+                            return fetch(`/students/${newStudent.id}/profile`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ' + token
+                                },
+                                body: JSON.stringify({
+                                    imageUrl: imageUrl,
+                                    phoneNumber: "000",
+                                    address: "Address"
+                                })
+                            });
+                        });
                 })
                 .then(response => {
                     if (response.ok) {
